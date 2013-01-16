@@ -17,6 +17,10 @@ class Model_ClientesProveedores extends Model_Table {
             setValueList(array('S'=>'Sí','N'=>'No'))->
             mandatory('Campo requerido')->
             caption('Exportación');
+        $this->addfield('envasadora')->
+            setValueList(array('S'=>'Sí','N'=>'No'))->
+            mandatory('Campo requerido')->
+            caption('Envasadora');
         $this->addfield('codigo_erp')->
             caption('Código ERP');
     }

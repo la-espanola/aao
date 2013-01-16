@@ -30,12 +30,16 @@ class Model_Informes extends Model_Table {
         foreach ($var as $variedad) {
 	        foreach ($des as $destino) {
 		        //Entradas Crudas
-		        $kilosCruda=$this->movim->CalcularTotal('C', 'E', $ejercicio, $mes, $variedad['id'], $destino['id'],'C');
-		        $kilosCruda+=$this->movim->CalcularTotal('T','E', $ejercicio, $mes, $variedad['id'], $destino['id'],'C');
+		        $kilosCruda=$this->movim
+		        	->CalcularTotal('C', 'E', $ejercicio, $mes, $variedad['id'], $destino['id'],'C');
+		        $kilosCruda+=$this->movim
+		        	->CalcularTotal('T','E', $ejercicio, $mes, $variedad['id'], $destino['id'],'C');
 		        
 		        //Entradas Transformadas
-		        $kilosTrans=$this->movim->CalcularTotal('C', 'E', $ejercicio, $mes, $variedad['id'], $destino['id'],'T');
-		        $kilosTrans+=$this->movim->CalcularTotal('T','E', $ejercicio, $mes, $variedad['id'], $destino['id'],'T');
+		        $kilosTrans=$this->movim
+		        	->CalcularTotal('C','E', $ejercicio, $mes, $variedad['id'], $destino['id'],'T');
+		        $kilosTrans+=$this->movim
+		        	->CalcularTotal('T','E', $ejercicio, $mes, $variedad['id'], $destino['id'],'T');
 		       		        
 		        //Entradas Totales
 		        $this['ejercicio']=$ejercicio;  
@@ -45,9 +49,8 @@ class Model_Informes extends Model_Table {
 		        $this['kilos']=$kilosCruda+$kilosTrans;
 		        $this['tipo']='T';
 		        $this['apartado']='Entradas mes';
-		        
-		        //Entradas Crudas
-		        $this->saveAndUnload();  
+		        $this->saveAndUnload(); 
+		        //Entradas Crudas 
 		        $this['ejercicio']=$ejercicio;  
 		        $this['mes']=$mes;  
 		        $this['variedades_id']=$variedad['id'];  
@@ -64,6 +67,41 @@ class Model_Informes extends Model_Table {
 		        $this['kilos']=$kilosTrans;
 		        $this['tipo']='T';
 		        $this['apartado']='---Transformadas';
+		        $this->saveAndUnload();
+		        
+		        //Ventas Granel Crudas
+		        $kilosCruda=$this->movim
+		        	->CalcularTotal('V','S', $ejercicio, $mes, $variedad['id'], $destino['id'],'C');
+		        //Ventas Granel Transformadas
+		        $kilosTrans=$this->movim
+		        	->CalcularTotal('V','S', $ejercicio, $mes, $variedad['id'], $destino['id'],'T');
+		        
+		        //Salidas Totales
+		        $this['ejercicio']=$ejercicio;  
+		        $this['mes']=$mes;  
+		        $this['variedades_id']=$variedad['id'];  
+		        $this['destinos_id']=$destino['id'];  
+		        $this['kilos']=$kilosCruda+$kilosTrans;
+		        $this['tipo']='T';
+		        $this['apartado']='Salidas mes';
+		        $this->saveAndUnload(); 
+		        //Entradas Crudas 
+		        $this['ejercicio']=$ejercicio;  
+		        $this['mes']=$mes;  
+		        $this['variedades_id']=$variedad['id'];  
+		        $this['destinos_id']=$destino['id'];  
+		        $this['kilos']=$kilosCruda;
+		        $this['tipo']='T';
+		        $this['apartado']='---Crudas';
+		        $this->saveAndUnload();
+		        //Entradas Transformadas
+		        $this['ejercicio']=$ejercicio;  
+		        $this['mes']=$mes;  
+		        $this['variedades_id']=$variedad['id'];  
+		        $this['destinos_id']=$destino['id'];  
+		        $this['kilos']=$kilosTrans;
+		        $this['tipo']='T';
+		        $this['apartado']='---Transf. a otras env.';
 		        $this->saveAndUnload();
 	        }
 	        

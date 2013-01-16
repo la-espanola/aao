@@ -10,7 +10,7 @@ class page_movimientos extends Page {
         
         $formDatos=$this->add('Form');
         $radio=$formDatos->addField('radio','importar')->
-        	setValueList(array('C'=>'Compras','T'=>'Traspasos'))->
+        	setValueList(array('C'=>'Compras','T'=>'Traspasos', 'V'=>'Ventas Granel'))->
         	validateNotNULL('Dime el tipo de datos que debo importar')->set('C');
     
     
@@ -28,7 +28,7 @@ class page_movimientos extends Page {
             $paso=$this->recall('PasoImport');
             $info->set('Importando');
             $datos=$formDatos->get('importar');
-            if ($datos=='C' || $datos=='T') $res=$m->ImportarDatosDeERP($datos,2012,12,1);
+            if ($datos=='C' || $datos=='T' || $datos=='V') $res=$m->ImportarDatosDeERP($datos,2012,9,1);
             else $this->js(null,$b->js()->show())->univ()->errorMessage('Selecciona un tipo de datos antes de importar')->execute();
             $this->memorize('PasoImport', $paso+1);
             if (!$res) $grid->js(null,$b->js()->show())->reload()->execute();   

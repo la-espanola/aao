@@ -12,7 +12,7 @@ class Model_Movimientos extends Model_Table {
         $this->addField('factor');
         $this->addField('kilos_convertidos');
         $this->addField('codigo_erp')->sortable(true);
-        $this->addField('entrada_salida')->enum(array('E','S'));
+        $this->addField('entrada_salida');
         $this->hasOne('Operaciones');
         $this->hasOne('Variedades');
         $this->hasOne('Estados');
@@ -53,6 +53,7 @@ class Model_Movimientos extends Model_Table {
         $result=$restcli->ExportarMovimientosAAO($operacion,$ejercicio, $mes, $centro, $maxCodigoErp);
         
         if (sizeof($result)==0) return false;
+        
         $proveedor=$this->add('Model_ClientesProveedores');
         
         foreach ($result as $compra) {
@@ -67,10 +68,16 @@ class Model_Movimientos extends Model_Table {
             $this['variedades_id'] = $compra->variedad;
             $this['destinos_id'] = $compra->destino;
             $this['operaciones_id'] = $compra->operacion;
-            $reg=$proveedor->tryLoadBy('codigo_erp','=',$compra->clienteproveedor);
-            $proveedor->tryLoadBy($this->dsql()->expr('codigo_erp='.$compra->clienteproveedor.' and tipo=\'P\''));
+           
+            switch($operacion) {
+	            case 'V': $tipoclicprov='C'; break;
+	            default: $tipoclicprov='V';
+            }
+           
+            $reg=$proveedor->tryLoadBy($this->dsql()->expr('codigo_erp='.$compra->clienteproveedor.' and tipo=\''.$tipoclicprov.'\''));
             if (!empty($reg)) $this['clientesproveedores_id']=$reg['id'];
             else throw new Excepcion('Proveedor no encontrado');
+            
             $this['codigo_erp'] = $compra->codigo_erp;
             $this['fecha'] = $compra->fecha->date;
             $this->save();
