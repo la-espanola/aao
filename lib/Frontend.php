@@ -15,7 +15,7 @@ class Frontend extends ApiFrontend {
         //la siguiente línea.
         //Si no es así copiar la siguente lína a las páginas
         //que necesiten conexion a bb.dd.
-        //dbConnect();
+        $this->dbConnect();
  
         //incluimos atk e inidicamos qué versión
 >>>>>>> Primer envío
