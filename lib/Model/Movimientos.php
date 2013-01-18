@@ -35,6 +35,13 @@ class Model_Movimientos extends Model_Table {
 	    	->getOne();
     }
     
+    public function filtrarPorMes($ejercicio, $mes) {
+	    $this->initQuery();
+    	$this->addCondition('ejercicio','=',$ejercicio);
+    	$this->addCondition('mes','=',$mes);
+    	return $this;
+    }
+    
     public function ImportarDatosDeERP($operacion, $ejercicio, $mes, $centro) {
         if (!is_numeric($mes) || 
             !is_numeric($ejercicio) || 
