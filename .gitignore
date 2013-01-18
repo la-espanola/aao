@@ -1,2 +1,6 @@
 config-default.php
+<<<<<<< HEAD
 .DS_Store
+=======
+.DS_Store
+>>>>>>> gitignore cambiado
