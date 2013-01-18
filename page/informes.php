@@ -7,11 +7,16 @@ class page_informes extends Page {
         $this->add('H1')->set('Informes');
     
         if (!$paso) $paso=1;
-        
-        $mesanterior=$this->add('myUtils')->getMesPasado();
-        $mes=$mesanterior['mes'];
-        $ejer=$mesanterior['ejercicio'];
-        
+        if ($_GET['mes']) {
+        	$mes=$_GET['mes'];
+        	$ejer=$_GET['ejer'];	
+        	$informe=$_GET['informe'];
+        } else { 
+        	$mesanterior=$this->add('myUtils')->getMesPasado();
+	        $mes=$mesanterior['mes'];
+	        $ejer=$mesanterior['ejercicio'];
+	        $informe='T';
+	    }
         $formDatos=$this->add('Form');
         $formDatos->addField('dropdown','ejercicio')
         	->setValueList(array('2012'=>'2012','2013'=>'2013'))->set($ejer);
@@ -30,19 +35,36 @@ class page_informes extends Page {
         	'12'=>'Diciembre'))->set($mes);
         $formDatos->addField('radio','informe')->
         	setValueList(array('T'=>'Transformación','E'=>'Envasado'))->
-        	validateNotNULL('Dime el tipo de datos que debo mostrar')->set('T');
+        	validateNotNULL('Dime el tipo de datos que debo mostrar')->set($informe);
         $b=$formDatos->addSubmit('Mostrar');
         $b->js('click',$b->js()->hide());
         
         $m=$this->add('Model_Informes');    
-        if ($_GET['mes']) {
-        	$m->CargarInforme($_GET['informe'],$_GET['ejercicio'],$_GET['mes']);
+        $m->CargarInforme($informe,$ejer,$mes,$variedad['id']);
+        
+        $tabla=$this->add('HtmlElement')->setElement('table')->set('.');
+        //$linea=$tabla->add('HtmlElement')->setElement('tr');    
+        //$linea->add('HtmlElement')->setElement('td')->set('VARIEDADES');
+        $var=$this->add('Model_Variedades');
+        
+        $primeraLinea=true;
+        foreach ($var as $variedad) {
+	    	$m=$m->FiltrarDatos($informe, $ejer, $mes, $variedad['id']);
+	    	$linea=$tabla->add('HtmlElement')->setElement('tr'); 
+	    	if ($primeraLinea) {
+	    		$linea->add('HtmlElement')->setElement('td')->set(' ');
+		    	foreach ($m as $datos) {
+		    		$linea->add('HtmlElement')->setElement('td')->set($datos['apartado']);
+		    	}
+		    	$linea=$tabla->add('HtmlElement')->setElement('tr'); 
+		    	$primeraLinea=false;	
+	    	}
+	    	$linea->add('HtmlElement')->setElement('td')->set($variedad['name']);
+	    	foreach ($m as $datos) {
+		    	$linea->add('HtmlElement')->setElement('td')->set($datos['kilos']);
+	    	}	
         }
-        else $m->CargarInforme('T',$ejer,$mes);
-        $grid=$this->add('Grid');
-        $grid->setModel($m);
-        $grid->addPaginator();    
-                 
+                         
         if ($formDatos->isSubmitted()) {
             $grid->js(null,$b->js(null,$grid->js()
             ->reload(array(	'informe'=>$formDatos->get('informe'),

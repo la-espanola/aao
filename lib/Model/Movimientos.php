@@ -20,7 +20,7 @@ class Model_Movimientos extends Model_Table {
         $this->hasOne('ClientesProveedores');
     }
     
-    public function CalcularTotal ($operacion, $entrada_salida, $ejercicio, $mes, $variedad, $destino, $estado) {
+    public function CalcularTotal ($operacion, $entrada_salida, $ejercicio, $mes, $variedad, $destino, $estado,$tipo_envasadora=null) {
     	$this->initQuery();
     	$this->addCondition('operaciones_id','=',$operacion);
     	$this->addCondition('ejercicio','=',$ejercicio);
@@ -29,7 +29,11 @@ class Model_Movimientos extends Model_Table {
     	$this->addCondition('destinos_id','=',$destino);
     	$this->addCondition('estados_id','=',$estado);
     	$this->addCondition('entrada_salida','=',$entrada_salida);
-    	
+    	if (!empty($tipo_envasadora)) {
+    		$expr=$this->api->db->dsql()->table('ClientesProveedores')->field('clientesproveedores.id')->where('envasadora',$tipo_envasadora);
+    		$this->addCondition('clientesproveedores_id','in',$expr);
+	    	
+    	}
 	    return $this->dsql()
 	    	->field($this->dsql()->expr('sum(kilos_originales)'),'total_kilos')
 	    	->getOne();
@@ -78,7 +82,9 @@ class Model_Movimientos extends Model_Table {
            
             switch($operacion) {
 	            case 'V': $tipoclicprov='C'; break;
-	            default: $tipoclicprov='V';
+	            case 'E': $tipoclicprov='C'; break;
+	            case 'M': $tipoclicprov='C'; break;
+	            default: $tipoclicprov='P';
             }
            
             $reg=$proveedor->tryLoadBy($this->dsql()->expr('codigo_erp='.$compra->clienteproveedor.' and tipo=\''.$tipoclicprov.'\''));

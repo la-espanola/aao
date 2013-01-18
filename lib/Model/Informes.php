@@ -12,7 +12,19 @@ class Model_Informes extends Model_Table {
         $this->hasOne('Variedades');
         $this->hasOne('Destinos');
         $this->addField('kilos')->type('money');
+        $this->dsql()->order('ejercicio,mes,variedades_id,destinos_id,id');
+        
         $this->movim=$this->add('Model_Movimientos');
+    }
+    
+    public function FiltrarDatos($tipo, $ejercicio, $mes, $variedad) {
+	    $this->initQuery();
+    	$this->addCondition('ejercicio','=',$ejercicio);
+    	$this->addCondition('mes','=',$mes);
+    	$this->addCondition('tipo','=',$tipo);
+    	$this->addCondition('variedades_id','=',$variedad);
+    	return $this;
+
     }
     
     public function CargarInforme($tipo, $ejercicio, $mes) { 
@@ -75,17 +87,26 @@ class Model_Informes extends Model_Table {
 		        //Ventas Granel Transformadas
 		        $kilosTrans=$this->movim
 		        	->CalcularTotal('V','S', $ejercicio, $mes, $variedad['id'], $destino['id'],'T');
+		        //Envasadora propia
+		        $kilosEnvProp=$this->movim
+		        	->CalcularTotal('E','S', $ejercicio, $mes, $variedad['id'], $destino['id'],'T','P');
+		        //Envasadora propia
+		        $kilosEnvExt=$this->movim
+		        	->CalcularTotal('E','S', $ejercicio, $mes, $variedad['id'], $destino['id'],'T','E');
+		        //Mermas
+		        $kilosMermas=$this->movim
+		        	->CalcularTotal('M','S', $ejercicio, $mes, $variedad['id'], $destino['id'],'T');
 		        
 		        //Salidas Totales
 		        $this['ejercicio']=$ejercicio;  
 		        $this['mes']=$mes;  
 		        $this['variedades_id']=$variedad['id'];  
 		        $this['destinos_id']=$destino['id'];  
-		        $this['kilos']=$kilosCruda+$kilosTrans;
+		        $this['kilos']=$kilosCruda+$kilosTrans+$kilosEnvProp+$kilosEnvExt+$kilosMermas;
 		        $this['tipo']='T';
 		        $this['apartado']='Salidas mes';
 		        $this->saveAndUnload(); 
-		        //Entradas Crudas 
+		        //Ventas Crudas 
 		        $this['ejercicio']=$ejercicio;  
 		        $this['mes']=$mes;  
 		        $this['variedades_id']=$variedad['id'];  
@@ -94,15 +115,44 @@ class Model_Informes extends Model_Table {
 		        $this['tipo']='T';
 		        $this['apartado']='---Crudas';
 		        $this->saveAndUnload();
-		        //Entradas Transformadas
+		        //Ventas Transformadas
 		        $this['ejercicio']=$ejercicio;  
 		        $this['mes']=$mes;  
 		        $this['variedades_id']=$variedad['id'];  
 		        $this['destinos_id']=$destino['id'];  
 		        $this['kilos']=$kilosTrans;
 		        $this['tipo']='T';
-		        $this['apartado']='---Transf. a otras env.';
+		        $this['apartado']='---Transf. otras ind.';
 		        $this->saveAndUnload();
+		        //Salidas Envasado propias
+		        $this['ejercicio']=$ejercicio;  
+		        $this['mes']=$mes;  
+		        $this['variedades_id']=$variedad['id'];  
+		        $this['destinos_id']=$destino['id'];  
+		        $this['kilos']=$kilosEnvProp;
+		        $this['tipo']='T';
+		        $this['apartado']='---T. envas. propia';
+		        $this->saveAndUnload();
+		        //Salidas Envasado propias
+		        $this['ejercicio']=$ejercicio;  
+		        $this['mes']=$mes;  
+		        $this['variedades_id']=$variedad['id'];  
+		        $this['destinos_id']=$destino['id'];  
+		        $this['kilos']=$kilosEnvExt;
+		        $this['tipo']='T';
+		        $this['apartado']='---T. otras. envas.';
+		        $this->saveAndUnload();
+		        //Salidas Mermas
+		        $this['ejercicio']=$ejercicio;  
+		        $this['mes']=$mes;  
+		        $this['variedades_id']=$variedad['id'];  
+		        $this['destinos_id']=$destino['id'];  
+		        $this['kilos']=$kilosMermas;
+		        $this['tipo']='T';
+		        $this['apartado']='---Mermas';
+		        $this->saveAndUnload();
+		        
+		        
 	        }
 	        
         }

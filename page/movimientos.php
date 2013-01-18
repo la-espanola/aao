@@ -31,16 +31,18 @@ class page_movimientos extends Page {
         	'12'=>'Diciembre'))
         	->set($mes);
         $formDatos->addField('radio','importar')->
-        	setValueList(array('C'=>'Compras','T'=>'Traspasos', 'V'=>'Ventas Granel'))->
+        	setValueList(array('C'=>'Compras','T'=>'Traspasos', 'V'=>'Ventas Granel', 'E'=>'Envasado','M'=>'Mermas'))->
         	validateNotNULL('Dime el tipo de datos que debo importar')->set('C');
     
     
-        $botonImportar=$formDatos->addSubmit('Importar mes desde ERP');
-        $botonRefrescar=$formDatos->addSubmit('Refrescar');
-        $botonImportar->js('click', $botonImportar->js()->hide());
+        $botonImportar=$formDatos->addButton('Importar mes desde ERP')
+        	->js('click',$formDatos->js()->atk4_form('submitForm','botonImportar'));
+        $botonRefrescar=$formDatos->addButton('Refrescar')
+        	->js('click',$formDatos->js()->atk4_form('submitForm','botonRefrescar'));
         
-        $comboejer->js('change',$botonRefrescar->js()->click());
-        $combomes->js('change',$botonRefrescar->js()->click());
+        
+        $comboejer->js('change',$formDatos->js()->atk4_form('submitForm','botonRefrescar'));
+        $combomes->js('change',$formDatos->js()->atk4_form('submitForm','botonRefrescar'));
         
         $info=$this->add('P')->set('Importación inactiva');
         $m=$this->add('Model_Movimientos');
@@ -48,33 +50,39 @@ class page_movimientos extends Page {
         if ($_GET['mes']) {
         	$m->FiltrarPorMes($_GET['ejercicio'],$_GET['mes']);
         }
+        else if ($formDatos->get('ejercicio')) {
+	        $m->FiltrarPorMes($formDatos->get('ejercicio') ,$formDatos->get('mes') );
+        }
         else $m->FiltrarPorMes($ejer,$mes);
         $grid=$this->add('Grid');
         $grid->setModel($m);
         $grid->addPaginator();
+        $this->api->stickyGET('ejercicio');
+        $this->api->stickyGET('mes');
         
-        
-        if ($botonRefrescar->isClicked()) {
-    		echo 'kkk';
-            $paso=$this->recall('PasoImport');
-            $info->set('Importando');
-            $datos=$formDatos->get('importar');
-            if ($datos=='C' || $datos=='T' || $datos=='V') 
-            	$res=$m->ImportarDatosDeERP($datos,$formDatos->get('ejercicio'),$formDatos->get('mes'),1);
-            else $this->js(null,$botonImportar->js()->show())->univ()->errorMessage('Selecciona un tipo de datos antes de importar')->execute();
-            $this->memorize('PasoImport', $paso+1);
-            if (!$res) {
-            	$grid->js(null,$botonImportar->js()->show())->reload()->execute();   
-            }
-            else {     
-                $botonImportar->js(null, $info->js()->text('Importando paso '.($paso+1)))->click()->execute();
-            } 
-        } else if ($formDatos->isSubmitted()) {
-        	//Filtrar datos
-        	echo 'lll';
-	        $grid->js(null,$botonImportar->js()->show())
-	        	->reload(array(	'mes'=>$formDatos->get('mes'),
-	        					'ejercicio'=>$formDatos->get('ejercicio')))->execute();
+        if ($formDatos->isSubmitted())
+        {
+	        if ($formDatos->isClicked('botonImportar')) {
+	            $paso=$this->recall('PasoImport');
+	            $info->set('Importando');
+	            $datos=$formDatos->get('importar');
+	            if ($datos) {
+	            	$m2=$this->add('Model_Movimientos');
+	            	$res=$m2->ImportarDatosDeERP($datos,$formDatos->get('ejercicio'),$formDatos->get('mes'),1);
+	            } else $this->js()->univ()->errorMessage('Selecciona un tipo de datos antes de importar')->execute();
+	            $this->memorize('PasoImport', $paso+1);
+	            if (!$res) {
+	            	$grid->js()->reload()->execute();   
+	            }
+	            else {  
+	            	$formDatos->js(null, $info->js()->text('Importando paso '.($paso+1)))->atk4_form('submitForm','botonImportar')->execute();
+	            } 
+	        } else  {
+	        	//Filtrar datos
+		        $grid->js()
+	        		->reload(array(	'mes'=>$formDatos->get('mes'),
+	        						'ejercicio'=>$formDatos->get('ejercicio')))->execute();
+	        }
         }
         else {
             $paso=1;

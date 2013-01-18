@@ -6,23 +6,24 @@ class Model_ClientesProveedores extends Model_Table {
     function init() {
         parent::init();
         
-        $this->addfield('name')->
-            mandatory('No podemos tener clientes o proveedores sin nombre')->
-            caption('Nombre')->searchable(true);
-        $this->addfield('tipo')->
-            setValueList(array('C'=>'Cliente','P'=>'Proveedor'))->
-            mandatory('Campo requerido')->
-            caption('Tipo')->sortable(true);
-        $this->addfield('exportacion')->
-            setValueList(array('S'=>'Sí','N'=>'No'))->
-            mandatory('Campo requerido')->
-            caption('Exportación');
-        $this->addfield('envasadora')->
-            setValueList(array('S'=>'Sí','N'=>'No'))->
-            mandatory('Campo requerido')->
-            caption('Envasadora');
-        $this->addfield('codigo_erp')->
-            caption('Código ERP');
+        $this->addfield('name')
+            ->mandatory('No podemos tener clientes o proveedores sin nombre')
+            ->caption('Nombre')->searchable(true);
+        $this->addfield('tipo')
+            ->setValueList(array('C'=>'Cliente','P'=>'Proveedor'))
+            ->mandatory('Campo requerido')
+            ->caption('Tipo')->sortable(true);
+        $this->addfield('exportacion')
+            ->setValueList(array('S'=>'Sí','N'=>'No'))
+            ->mandatory('Campo requerido')
+            ->caption('Exportación');
+        $this->addfield('envasadora')
+            ->setValueList(array('S'=>'Sí','N'=>'No'))
+            ->mandatory('Campo requerido')
+            ->caption('Envasadora');
+        $this->addfield('codigo_erp')
+            ->caption('Código ERP')
+            ->sortable(true);
     }
     
     public function ImportarDeERP($pagina=1) {
