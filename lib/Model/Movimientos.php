@@ -14,35 +14,41 @@ class Model_Movimientos extends Model_Table {
         $this->addField('codigo_erp')->sortable(true);
         $this->addField('entrada_salida');
         $this->hasOne('Operaciones');
-        $this->hasOne('Variedades');
-        $this->hasOne('Estados');
-        $this->hasOne('Destinos');
+        $this->hasOne('Productos');
         $this->hasOne('ClientesProveedores');
     }
     
+    /**
+    Devuelve el total de kilos_convertidos para los parámetros pasados. 
+    **/
     public function CalcularTotal ($operacion, $entrada_salida, $ejercicio, $mes, $variedad, $destino, $estado,$tipo_envasadora=null) {
     	$this->initQuery();
     	$this->addCondition('operaciones_id','=',$operacion);
     	$this->addCondition('ejercicio','=',$ejercicio);
     	$this->addCondition('mes','=',$mes);
-    	$this->addCondition('variedades_id','=',$variedad);
-    	$this->addCondition('destinos_id','=',$destino);
-    	$this->addCondition('estados_id','=',$estado);
     	$this->addCondition('entrada_salida','=',$entrada_salida);
+    	
+    	$expr=$this->api->db->dsql()->table('Productos')->field('productos.id')
+    		->where('variedades_id',$variedad)
+    		->where('destinos_id',$destino)
+    		->where('estados_id',$estado);
+    	$this->addCondition('productos_id','in',$expr);
+    	
     	if (!empty($tipo_envasadora)) {
     		$expr=$this->api->db->dsql()->table('ClientesProveedores')->field('clientesproveedores.id')->where('envasadora',$tipo_envasadora);
     		$this->addCondition('clientesproveedores_id','in',$expr);
 	    	
     	}
 	    return $this->dsql()
-	    	->field($this->dsql()->expr('sum(kilos_originales)'),'total_kilos')
+	    	->field($this->dsql()->expr('sum(kilos_convertidos)'),'total_kilos')
 	    	->getOne();
     }
     
-    public function filtrarPorMes($ejercicio, $mes) {
+    public function filtrarPorMesyTipo($ejercicio, $mes,$operacion) {
 	    $this->initQuery();
     	$this->addCondition('ejercicio','=',$ejercicio);
     	$this->addCondition('mes','=',$mes);
+    	$this->addCondition('operaciones_id','=',$operacion);
     	return $this;
     }
     
@@ -66,6 +72,7 @@ class Model_Movimientos extends Model_Table {
         if (sizeof($result)==0) return false;
         
         $proveedor=$this->add('Model_ClientesProveedores');
+        $producto=$this->add('Model_Productos');
         
         foreach ($result as $compra) {
             $this['ejercicio'] = $ejercicio;
@@ -75,15 +82,13 @@ class Model_Movimientos extends Model_Table {
             $this['entrada_salida'] = $compra->entrada_salida;
             $this['factor'] = 0;
             $this['kilos_convertidos'] = 0;
-            $this['estados_id'] = $compra->estado;
-            $this['variedades_id'] = $compra->variedad;
-            $this['destinos_id'] = $compra->destino;
             $this['operaciones_id'] = $compra->operacion;
            
             switch($operacion) {
 	            case 'V': $tipoclicprov='C'; break;
 	            case 'E': $tipoclicprov='C'; break;
 	            case 'M': $tipoclicprov='C'; break;
+	            case 'F': $tipoclicprov='C'; break;
 	            default: $tipoclicprov='P';
             }
            
@@ -91,6 +96,18 @@ class Model_Movimientos extends Model_Table {
             if (!empty($reg)) $this['clientesproveedores_id']=$reg['id'];
             else throw new Excepcion('Proveedor no encontrado');
             
+            $reg=$producto->tryLoadBy($this->dsql()->expr('variedades_id=\''.$compra->variedad.'\' and destinos_id=\''.$compra->destino.'\' and
+            estados_id=\''.$compra->estado.'\' and procesados_id=\''.$compra->procesado.'\''));
+            if (!$reg) $this['productos_id']=$reg['id'];
+            else {
+            	$producto['variedades_id']=$compra->variedad;
+            	$producto['destinos_id']=$compra->destino;
+            	$producto['estados_id']=$compra->estado;
+            	$producto['procesados_id']=$compra->procesado;
+            	$producto->save();
+            	$this['productos_id']=$producto['id'];
+            	$producto->unload();
+            }      
             $this['codigo_erp'] = $compra->codigo_erp;
             $this['fecha'] = $compra->fecha->date;
             $this->save();
@@ -99,5 +116,20 @@ class Model_Movimientos extends Model_Table {
     
         return true;
     }
-      
+    
+    public function aplicarFactoresActualesaMes($ejercicio, $mes) {
+    	$this->initQuery();
+    	$this->addCondition('ejercicio','=',$ejercicio);
+    	$this->addCondition('mes','=',$mes);
+    	$expr=$this->api->db->dsql()
+    		->table('productos','p')->field('factor_actual')
+    		->where('p.id',$this->api->db->dsql()->expr('productos_id'));
+    	$this->dsql()
+    		->set('factor',$expr)
+    		->set('kilos_convertidos',$this->dsql()->expr('kilos_originales*factor'))
+    		->update();
+    		
+    		
+	    return true;
+    }      
 }

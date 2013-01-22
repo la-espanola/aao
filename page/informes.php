@@ -9,17 +9,17 @@ class page_informes extends Page {
         if (!$paso) $paso=1;
         if ($_GET['mes']) {
         	$mes=$_GET['mes'];
-        	$ejer=$_GET['ejer'];	
+        	$ejercicio=$_GET['ejercicio'];	
         	$informe=$_GET['informe'];
         } else { 
         	$mesanterior=$this->add('myUtils')->getMesPasado();
 	        $mes=$mesanterior['mes'];
-	        $ejer=$mesanterior['ejercicio'];
+	        $ejercicio=$mesanterior['ejercicio'];
 	        $informe='T';
 	    }
         $formDatos=$this->add('Form');
         $formDatos->addField('dropdown','ejercicio')
-        	->setValueList(array('2012'=>'2012','2013'=>'2013'))->set($ejer);
+        	->setValueList(array('2012'=>'2012','2013'=>'2013'))->set($ejercicio);
         $formDatos->addField('dropdown','mes')
         	->setValueList(array('1'=>'Enero',
         	'2'=>'Febrero',
@@ -39,38 +39,44 @@ class page_informes extends Page {
         $b=$formDatos->addSubmit('Mostrar');
         $b->js('click',$b->js()->hide());
         
-        $m=$this->add('Model_Informes');    
-        $m->CargarInforme($informe,$ejer,$mes,$variedad['id']);
+        $m=$this->add('Model_Informes');   
+        $m->CargarInforme($informe,$ejercicio,$mes,$variedad['id']);
         
-        $tabla=$this->add('HtmlElement')->setElement('table')->set('.');
-        //$linea=$tabla->add('HtmlElement')->setElement('tr');    
-        //$linea->add('HtmlElement')->setElement('td')->set('VARIEDADES');
+        $tabla=$this->add('HtmlElement')->setElement('table')->setAttr('id','tabla');
         $var=$this->add('Model_Variedades');
         
         $primeraLinea=true;
         foreach ($var as $variedad) {
-	    	$m=$m->FiltrarDatos($informe, $ejer, $mes, $variedad['id']);
+	    	$m=$m->FiltrarDatos($informe, $ejercicio, $mes, $variedad['id']);
 	    	$linea=$tabla->add('HtmlElement')->setElement('tr'); 
 	    	if ($primeraLinea) {
-	    		$linea->add('HtmlElement')->setElement('td')->set(' ');
+	    		$linea->add('HtmlElement')->setElement('td')->set($informe.' '.$ejercicio.' '.$mes);
+	    		$estado_anterior='';
 		    	foreach ($m as $datos) {
+		    		if ($estado_anterior=='') $linea->add('HtmlElement')->setElement('td')->set('VERDE');
+		    		else if ($estado_anterior=='V' && $datos['destinos_id']!='V') $linea->add('HtmlElement')->setElement('td')->set('NEGRA');
 		    		$linea->add('HtmlElement')->setElement('td')->set($datos['apartado']);
+		    		$estado_anterior=$datos['destinos_id'];
 		    	}
 		    	$linea=$tabla->add('HtmlElement')->setElement('tr'); 
 		    	$primeraLinea=false;	
 	    	}
 	    	$linea->add('HtmlElement')->setElement('td')->set($variedad['name']);
+	    	$estado_anterior='';
 	    	foreach ($m as $datos) {
-		    	$linea->add('HtmlElement')->setElement('td')->set($datos['kilos']);
+	    		if ($estado_anterior=='') $linea->add('HtmlElement')->setElement('td')->set('VERDE');
+	    		else if ($estado_anterior=='V' && $datos['destinos_id']!='V') $linea->add('HtmlElement')->setElement('td')->set('NEGRA');
+		    	$linea->add('HtmlElement')->setElement('td')->addClass('numero')->set(number_format($datos['kilos']));
+		    	$estado_anterior=$datos['destinos_id'];
 	    	}	
         }
+        
+        $tabla->js(true)->_load('transpose_table')->univ()->transposeTable('sample_project_informes_htmlelement');
                          
         if ($formDatos->isSubmitted()) {
-            $grid->js(null,$b->js(null,$grid->js()
-            ->reload(array(	'informe'=>$formDatos->get('informe'),
+            $tabla->js(null,$tabla->js(null, $b->js()->show()))->reload(array('informe'=>$formDatos->get('informe'),
             				'mes'=>$formDatos->get('mes'),
-		        			'ejercicio'=>$formDatos->get('ejercicio'))))->show())->univ()
-		        				->successMessage('Mes Calculado correctamente')->execute();
+		        			'ejercicio'=>$formDatos->get('ejercicio')))->execute();
         }
     }
 }

@@ -12,7 +12,7 @@ class Model_Informes extends Model_Table {
         $this->hasOne('Variedades');
         $this->hasOne('Destinos');
         $this->addField('kilos')->type('money');
-        $this->dsql()->order('ejercicio,mes,variedades_id,destinos_id,id');
+        $this->dsql()->order('ejercicio,mes,variedades_id,id,destinos_id');
         
         $this->movim=$this->add('Model_Movimientos');
     }
@@ -23,6 +23,7 @@ class Model_Informes extends Model_Table {
     	$this->addCondition('mes','=',$mes);
     	$this->addCondition('tipo','=',$tipo);
     	$this->addCondition('variedades_id','=',$variedad);
+    	$this->dsql()->order('destinos_id desc');
     	return $this;
 
     }
@@ -160,8 +161,55 @@ class Model_Informes extends Model_Table {
     }
     
     protected function CargarInformeEnvasado($ejercicio, $mes) { 
-        
-        return false;    
+        $var=$this->add('Model_Variedades');
+        $des=$this->add('Model_Destinos');
+        foreach ($var as $variedad) {
+	        foreach ($des as $destino) {
+		       	//Envasadora propia
+		        $kilosEnvProp=$this->movim
+		        	->CalcularTotal('E','S', $ejercicio, $mes, $variedad['id'], $destino['id'],'T','P');
+		        //Entradas Totales
+		        $this['ejercicio']=$ejercicio;  
+		        $this['mes']=$mes;  
+		        $this['variedades_id']=$variedad['id'];  
+		        $this['destinos_id']=$destino['id'];  
+		        $this['kilos']=$kilosEnvProp;
+		        $this['tipo']='E';
+		        $this['apartado']='Entradas mes';
+		        $this->saveAndUnload();
+		        //Entradas Env. Propia
+		        $this['ejercicio']=$ejercicio;  
+		        $this['mes']=$mes;  
+		        $this['variedades_id']=$variedad['id'];  
+		        $this['destinos_id']=$destino['id'];  
+		        $this['kilos']=$kilosEnvProp;
+		        $this['tipo']='E';
+		        $this['apartado']='---De entam. propia';
+		        $this->saveAndUnload();
+		        //Entradas Totales
+		        $this['ejercicio']=$ejercicio;  
+		        $this['mes']=$mes;  
+		        $this['variedades_id']=$variedad['id'];  
+		        $this['destinos_id']=$destino['id'];  
+		        $this['kilos']=0;
+		        $this['tipo']='E';
+		        $this['apartado']='---De otras entam/op.';
+		        $this->saveAndUnload();
+		        //Entradas Totales
+		        $this['ejercicio']=$ejercicio;  
+		        $this['mes']=$mes;  
+		        $this['variedades_id']=$variedad['id'];  
+		        $this['destinos_id']=$destino['id'];  
+		        $this['kilos']=0;
+		        $this['tipo']='E';
+		        $this['apartado']='---De otras env.';
+		        $this->saveAndUnload();
+		        		        
+	        }
+	        
+        }
+
+        return true;    
     }
       
 }

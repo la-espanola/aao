@@ -30,8 +30,8 @@ class page_movimientos extends Page {
         	'11'=>'Noviembre',
         	'12'=>'Diciembre'))
         	->set($mes);
-        $formDatos->addField('radio','importar')->
-        	setValueList(array('C'=>'Compras','T'=>'Traspasos', 'V'=>'Ventas Granel', 'E'=>'Envasado','M'=>'Mermas'))->
+        $radiotipo=$formDatos->addField('radio','importar')->
+        	setValueList(array('C'=>'Compras','T'=>'Traspasos', 'V'=>'Ventas Granel', 'E'=>'Envasado','M'=>'Mermas','F'=>'Ventas PT'))->
         	validateNotNULL('Dime el tipo de datos que debo importar')->set('C');
     
     
@@ -43,22 +43,24 @@ class page_movimientos extends Page {
         
         $comboejer->js('change',$formDatos->js()->atk4_form('submitForm','botonRefrescar'));
         $combomes->js('change',$formDatos->js()->atk4_form('submitForm','botonRefrescar'));
+        $radiotipo->js('change',$formDatos->js()->atk4_form('submitForm','botonRefrescar'));
         
         $info=$this->add('P')->set('Importación inactiva');
         $m=$this->add('Model_Movimientos');
         
         if ($_GET['mes']) {
-        	$m->FiltrarPorMes($_GET['ejercicio'],$_GET['mes']);
+        	$m->FiltrarPorMesyTipo($_GET['ejercicio'],$_GET['mes'],$_GET['importar']);
         }
         else if ($formDatos->get('ejercicio')) {
-	        $m->FiltrarPorMes($formDatos->get('ejercicio') ,$formDatos->get('mes') );
+	        $m->FiltrarPorMesyTipo($formDatos->get('ejercicio') ,$formDatos->get('mes'),$formDatos->get('importar') );
         }
-        else $m->FiltrarPorMes($ejer,$mes);
+        else $m->FiltrarPorMesyTipo($ejer,$mes);
         $grid=$this->add('Grid');
         $grid->setModel($m);
         $grid->addPaginator();
         $this->api->stickyGET('ejercicio');
         $this->api->stickyGET('mes');
+        $this->api->stickyGET('importar');
         
         if ($formDatos->isSubmitted())
         {
@@ -81,7 +83,8 @@ class page_movimientos extends Page {
 	        	//Filtrar datos
 		        $grid->js()
 	        		->reload(array(	'mes'=>$formDatos->get('mes'),
-	        						'ejercicio'=>$formDatos->get('ejercicio')))->execute();
+	        						'ejercicio'=>$formDatos->get('ejercicio'),
+	        						'importar'=>$formDatos->get('importar')))->execute();
 	        }
         }
         else {

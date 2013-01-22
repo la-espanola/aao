@@ -48,6 +48,18 @@ class ESPANOLAserverRestClient{
         )));
     }
 
+    public function ExportarArticulos($pagina){
+        return json_decode(self::_Call('/ExportarArticulos/ pagina/',Array(
+            'pagina'=>$pagina
+        )));
+    }
+
+    public function ExportarArticulosPT($pagina){
+        return json_decode(self::_Call('/ExportarArticulosPT/ pagina/',Array(
+            'pagina'=>$pagina
+        )));
+    }
+
     public function ExportarMovimientosAAO($operacion, $ejercicio, $mes, $centro, $pagina){
         return json_decode(self::_Call('/ExportarMovimientosAAO/ operacion/ ejercicio/ mes/ centro/ pagina/',Array(
         	'operacion'=>$operacion,

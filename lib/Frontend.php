@@ -1,4 +1,5 @@
 <?php
+ini_set('display_errors', 'On');
 class Frontend extends ApiFrontend {
     function init(){
         parent::init();
@@ -40,6 +41,7 @@ class Frontend extends ApiFrontend {
             ->addMenuItem('estados','Estados')
             ->addMenuItem('destinos','Destinos')
             ->addMenuItem('operaciones','Operaciones')
+            ->addMenuItem('procesados','Procesados')
             ->addMenuItem('productos','Productos')
             ->addMenuItem('clientesproveedores','Clientes/Proveedores')
             ->addMenuItem('movimientos','Movimientos')
