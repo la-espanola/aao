@@ -9,11 +9,16 @@ class Model_Productos extends Model_Table {
         $this->hasOne('Estados')->caption('Estado')->sortable(true)->editable(false);
         $this->hasOne('Destinos')->caption('Destino')->sortable(true)->editable(false); 
         $this->hasOne('Procesados')->caption('Procesado')->sortable(true)->editable(false); 
-        $this->addfield('factor_actual')->caption('Factor Actual')->mandatory('El factor de conversión es un dato obligatorio'); 
-         
+        $this->addField('factor_actual')->caption('Factor Actual')->mandatory('El factor de conversión es un dato obligatorio'); 
+        $this->addField('name')->system(true);
+        $this->addHook('beforeSave',$this);
     }
-    
-     public function ImportarDeERP($pagina=1) {
+   
+    function beforeSave() {
+	    $this['name']=$this['variedades'].' '.$this['estados'].' '.$this['destinos'].' '.$this['procesados'];
+    }
+   
+    public function ImportarDeERP($pagina=1) {
         $restcli=new ESPANOLAserverRestClient();
         $result=$restcli->ExportarArticulos($pagina);
         

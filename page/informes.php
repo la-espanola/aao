@@ -50,28 +50,28 @@ class page_informes extends Page {
 	    	$m=$m->FiltrarDatos($informe, $ejercicio, $mes, $variedad['id']);
 	    	$linea=$tabla->add('HtmlElement')->setElement('tr'); 
 	    	if ($primeraLinea) {
-	    		$linea->add('HtmlElement')->setElement('td')->set($informe.' '.$ejercicio.' '.$mes);
+	    		$linea->add('HtmlElement')->setElement('td')->addClass('titulo')->set($informe.' '.$ejercicio.' '.$mes);
 	    		$estado_anterior='';
 		    	foreach ($m as $datos) {
-		    		if ($estado_anterior=='') $linea->add('HtmlElement')->setElement('td')->set('VERDE');
-		    		else if ($estado_anterior=='V' && $datos['destinos_id']!='V') $linea->add('HtmlElement')->setElement('td')->set('NEGRA');
-		    		$linea->add('HtmlElement')->setElement('td')->set($datos['apartado']);
+		    		if ($estado_anterior=='') $linea->add('HtmlElement')->setElement('td')->addClass('titulo')->set('VERDE');
+		    		else if ($estado_anterior=='V' && $datos['destinos_id']!='V') $linea->add('HtmlElement')->setElement('td')->addClass('titulo')->set('NEGRA');
+		    		$linea->add('HtmlElement')->setElement('td')->addClass('titulo')->set($datos['apartado']);
 		    		$estado_anterior=$datos['destinos_id'];
 		    	}
 		    	$linea=$tabla->add('HtmlElement')->setElement('tr'); 
 		    	$primeraLinea=false;	
 	    	}
-	    	$linea->add('HtmlElement')->setElement('td')->set($variedad['name']);
+	    	$linea->add('HtmlElement')->setElement('td')->addClass('titulo')->set($variedad['name']);
 	    	$estado_anterior='';
 	    	foreach ($m as $datos) {
-	    		if ($estado_anterior=='') $linea->add('HtmlElement')->setElement('td')->set('VERDE');
-	    		else if ($estado_anterior=='V' && $datos['destinos_id']!='V') $linea->add('HtmlElement')->setElement('td')->set('NEGRA');
+	    		if ($estado_anterior=='') $linea->add('HtmlElement')->setElement('td')->addClass('titulo')->set('VERDE');
+	    		else if ($estado_anterior=='V' && $datos['destinos_id']!='V') $linea->add('HtmlElement')->setElement('td')->addClass('titulo')->set('NEGRA');
 		    	$linea->add('HtmlElement')->setElement('td')->addClass('numero')->set(number_format($datos['kilos']));
 		    	$estado_anterior=$datos['destinos_id'];
 	    	}	
         }
         
-        $tabla->js(true)->_load('transpose_table')->univ()->transposeTable('sample_project_informes_htmlelement');
+        $tabla->js(true)->_load('transpose_table')->univ()->transposeTable('aao_informes_htmlelement');
                          
         if ($formDatos->isSubmitted()) {
             $tabla->js(null,$tabla->js(null, $b->js()->show()))->reload(array('informe'=>$formDatos->get('informe'),

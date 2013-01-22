@@ -21,7 +21,7 @@ class Model_Movimientos extends Model_Table {
     /**
     Devuelve el total de kilos_convertidos para los parámetros pasados. 
     **/
-    public function CalcularTotal ($operacion, $entrada_salida, $ejercicio, $mes, $variedad, $destino, $estado,$tipo_envasadora=null) {
+    public function CalcularTotal ($operacion, $entrada_salida, $ejercicio, $mes, $variedad, $destino, $estado,$tipo_envasadora=null,$exportacion=null) {
     	$this->initQuery();
     	$this->addCondition('operaciones_id','=',$operacion);
     	$this->addCondition('ejercicio','=',$ejercicio);
@@ -36,6 +36,11 @@ class Model_Movimientos extends Model_Table {
     	
     	if (!empty($tipo_envasadora)) {
     		$expr=$this->api->db->dsql()->table('ClientesProveedores')->field('clientesproveedores.id')->where('envasadora',$tipo_envasadora);
+    		$this->addCondition('clientesproveedores_id','in',$expr);
+	    	
+    	}
+    	if (!empty($exportacion)) {
+    		$expr=$this->api->db->dsql()->table('ClientesProveedores')->field('clientesproveedores.id')->where('exportacion',$exportacion);
     		$this->addCondition('clientesproveedores_id','in',$expr);
 	    	
     	}
@@ -131,5 +136,34 @@ class Model_Movimientos extends Model_Table {
     		
     		
 	    return true;
-    }      
+    }    
+    
+    public function convertir($ejercicio, $mes, $origen, $destino) {
+    	$movim=$this->add('Model_Movimientos');
+    	$movim->addCondition('ejercicio','=',$ejercicio);
+    	$movim->addCondition('mes','=',$mes);
+    	$movim->addCondition('productos_id',$this->api->db->dsql()
+    			->table('productos','p')->field('p.id')
+    			->where('variedades_id',$origen['variedad'])
+    			->where('estados_id',$origen['estado'])
+    			->where('destinos_id',$origen['destino']));
+    	$movim->debug();
+    	$productos=$this->add('Model_Productos');
+    	foreach ($movim as $registro) {
+	    	$productoOriginal=$productos->tryLoad($movim['productos_id']);
+	    	if ($productoOriginal) {
+		    	$procesado=$productoOriginal['procesados_id'];
+		    	$productoDestino=$productos->tryLoadBy($this->dsql()
+		    	->expr('variedades_id=\''.$destino['variedad'].'\' and 
+		    			destinos_id=\''.$destino['destino'].'\' and
+		    			estados_id=\''.$destino['estado'].'\' and 
+		    			procesados_id=\''.$procesado.'\''));
+		    	if ($productoDestino) {		
+		    		$movim['productos_id']=$productoDestino['id'];
+		    		$movim->saveAndUnload();
+		    	}
+	    	}
+    	}
+	    return true;
+    }  
 }

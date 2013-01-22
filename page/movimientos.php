@@ -55,9 +55,9 @@ class page_movimientos extends Page {
 	        $m->FiltrarPorMesyTipo($formDatos->get('ejercicio') ,$formDatos->get('mes'),$formDatos->get('importar') );
         }
         else $m->FiltrarPorMesyTipo($ejer,$mes);
-        $grid=$this->add('Grid');
+        $grid=$this->add('CRUD');
         $grid->setModel($m);
-        $grid->addPaginator();
+        if ($grid->grid) $grid->grid->addPaginator();
         $this->api->stickyGET('ejercicio');
         $this->api->stickyGET('mes');
         $this->api->stickyGET('importar');

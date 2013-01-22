@@ -45,6 +45,8 @@ class Frontend extends ApiFrontend {
             ->addMenuItem('productos','Productos')
             ->addMenuItem('clientesproveedores','Clientes/Proveedores')
             ->addMenuItem('movimientos','Movimientos')
+            ->addMenuItem('existencias','Existencias')
+            ->addMenuItem('ajustes','Ajustes')
             ->addMenuItem('informes','Informes');
             
             

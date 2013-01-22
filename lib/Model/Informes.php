@@ -40,19 +40,32 @@ class Model_Informes extends Model_Table {
     protected function CargarInformeTransformacion($ejercicio, $mes) { 
         $var=$this->add('Model_Variedades');
         $des=$this->add('Model_Destinos');
+        $exist=$this->add('Model_Existencias');
         foreach ($var as $variedad) {
 	        foreach ($des as $destino) {
+		        $mesanterior=$this->add('MyUtils')->getMesPasado($ejercicio, $mes);
+		       	$existencias=$exist->getTotal($mesanterior['ejercicio'], $mesanterior['mes'], 'T',$variedad['id'], $destino['id']);   
+		        //Existencias iniciales
+		        $this['ejercicio']=$ejercicio;  
+		        $this['mes']=$mes;  
+		        $this['variedades_id']=$variedad['id'];  
+		        $this['destinos_id']=$destino['id'];  
+		        $this['kilos']=$existencias;
+		        $this['tipo']='T';
+		        $this['apartado']='Existencias inicio mes';
+		        $this->saveAndUnload();
+		        
 		        //Entradas Crudas
 		        $kilosCruda=$this->movim
 		        	->CalcularTotal('C', 'E', $ejercicio, $mes, $variedad['id'], $destino['id'],'C');
 		        $kilosCruda+=$this->movim
-		        	->CalcularTotal('T','E', $ejercicio, $mes, $variedad['id'], $destino['id'],'C');
+		        	->CalcularTotal('T', 'E', $ejercicio, $mes, $variedad['id'], $destino['id'],'C');
 		        
 		        //Entradas Transformadas
 		        $kilosTrans=$this->movim
-		        	->CalcularTotal('C','E', $ejercicio, $mes, $variedad['id'], $destino['id'],'T');
+		        	->CalcularTotal('C', 'E', $ejercicio, $mes, $variedad['id'], $destino['id'],'T');
 		        $kilosTrans+=$this->movim
-		        	->CalcularTotal('T','E', $ejercicio, $mes, $variedad['id'], $destino['id'],'T');
+		        	->CalcularTotal('T', 'E', $ejercicio, $mes, $variedad['id'], $destino['id'],'T');
 		       		        
 		        //Entradas Totales
 		        $this['ejercicio']=$ejercicio;  
@@ -62,7 +75,8 @@ class Model_Informes extends Model_Table {
 		        $this['kilos']=$kilosCruda+$kilosTrans;
 		        $this['tipo']='T';
 		        $this['apartado']='Entradas mes';
-		        $this->saveAndUnload(); 
+		        $this->saveAndUnload();
+		        $existencias+=$kilosCruda+$kilosTrans; 
 		        //Entradas Crudas 
 		        $this['ejercicio']=$ejercicio;  
 		        $this['mes']=$mes;  
@@ -107,6 +121,7 @@ class Model_Informes extends Model_Table {
 		        $this['tipo']='T';
 		        $this['apartado']='Salidas mes';
 		        $this->saveAndUnload(); 
+		        $existencias-=$kilosCruda+$kilosTrans+$kilosEnvProp+$kilosEnvExt+$kilosMermas;
 		        //Ventas Crudas 
 		        $this['ejercicio']=$ejercicio;  
 		        $this['mes']=$mes;  
@@ -153,6 +168,18 @@ class Model_Informes extends Model_Table {
 		        $this['apartado']='---Mermas';
 		        $this->saveAndUnload();
 		        
+		        //Existenvcias finales
+		        $this['ejercicio']=$ejercicio;  
+		        $this['mes']=$mes;  
+		        $this['variedades_id']=$variedad['id'];  
+		        $this['destinos_id']=$destino['id'];  
+		        $this['kilos']=$existencias;
+		        $this['tipo']='T';
+		        $this['apartado']='Existencias finales';
+		        $this->saveAndUnload();
+		        //Guardamos existencias
+		        $exist->setTotal($ejercicio,$mes,'T',$variedad['id'],$destino['id'], $existencias);	
+		        
 		        
 	        }
 	        
@@ -163,11 +190,25 @@ class Model_Informes extends Model_Table {
     protected function CargarInformeEnvasado($ejercicio, $mes) { 
         $var=$this->add('Model_Variedades');
         $des=$this->add('Model_Destinos');
+        $exist=$this->add('Model_Existencias');
         foreach ($var as $variedad) {
 	        foreach ($des as $destino) {
-		       	//Envasadora propia
+	        	$mesanterior=$this->add('MyUtils')->getMesPasado($ejercicio, $mes);
+		       	$existencias=$exist->getTotal($mesanterior['ejercicio'], $mesanterior['mes'], 'E',$variedad['id'], $destino['id']);   
+		        //Existencias iniciales
+		        $this['ejercicio']=$ejercicio;  
+		        $this['mes']=$mes;  
+		        $this['variedades_id']=$variedad['id'];  
+		        $this['destinos_id']=$destino['id'];  
+		        $this['kilos']=$existencias;
+		        $this['tipo']='E';
+		        $this['apartado']='Existencias inicio mes';
+		        $this->saveAndUnload();
+		        
+		        //Envasadora propia
 		        $kilosEnvProp=$this->movim
 		        	->CalcularTotal('E','S', $ejercicio, $mes, $variedad['id'], $destino['id'],'T','P');
+		     
 		        //Entradas Totales
 		        $this['ejercicio']=$ejercicio;  
 		        $this['mes']=$mes;  
@@ -177,6 +218,7 @@ class Model_Informes extends Model_Table {
 		        $this['tipo']='E';
 		        $this['apartado']='Entradas mes';
 		        $this->saveAndUnload();
+		        $existencias+=$kilosEnvProp;
 		        //Entradas Env. Propia
 		        $this['ejercicio']=$ejercicio;  
 		        $this['mes']=$mes;  
@@ -186,7 +228,7 @@ class Model_Informes extends Model_Table {
 		        $this['tipo']='E';
 		        $this['apartado']='---De entam. propia';
 		        $this->saveAndUnload();
-		        //Entradas Totales
+		        //Entradas otras ent.
 		        $this['ejercicio']=$ejercicio;  
 		        $this['mes']=$mes;  
 		        $this['variedades_id']=$variedad['id'];  
@@ -195,7 +237,7 @@ class Model_Informes extends Model_Table {
 		        $this['tipo']='E';
 		        $this['apartado']='---De otras entam/op.';
 		        $this->saveAndUnload();
-		        //Entradas Totales
+		        //Entradas otras env.
 		        $this['ejercicio']=$ejercicio;  
 		        $this['mes']=$mes;  
 		        $this['variedades_id']=$variedad['id'];  
@@ -204,7 +246,64 @@ class Model_Informes extends Model_Table {
 		        $this['tipo']='E';
 		        $this['apartado']='---De otras env.';
 		        $this->saveAndUnload();
-		        		        
+		        //Entradas importadas.
+		        $this['ejercicio']=$ejercicio;  
+		        $this['mes']=$mes;  
+		        $this['variedades_id']=$variedad['id'];  
+		        $this['destinos_id']=$destino['id'];  
+		        $this['kilos']=0;
+		        $this['tipo']='E';
+		        $this['apartado']='---Importadas';
+		        $this->saveAndUnload();
+		        
+		        //Salidas Ventas nacional
+		        $kilosNacional=$this->movim
+		        	->CalcularTotal('F', 'S', $ejercicio, $mes, $variedad['id'], $destino['id'],
+		        					'T', null, 'N');		   
+		        //Salidas Ventas nacional
+		        $kilosExport=$this->movim
+		        	->CalcularTotal('F', 'S', $ejercicio, $mes, $variedad['id'], $destino['id'],
+		        					'T', null, 'S');
+		        //Salidas Totales
+		        $this['ejercicio']=$ejercicio;  
+		        $this['mes']=$mes;  
+		        $this['variedades_id']=$variedad['id'];  
+		        $this['destinos_id']=$destino['id'];  
+		        $this['kilos']=$kilosNacional+$kilosExport;
+		        $this['tipo']='E';
+		        $this['apartado']='Salidas transf.mes';
+		        $this->saveAndUnload();
+		        $existencias-=$kilosNacional+$kilosExport;
+		        //Salidas nacional
+		        $this['ejercicio']=$ejercicio;  
+		        $this['mes']=$mes;  
+		        $this['variedades_id']=$variedad['id'];  
+		        $this['destinos_id']=$destino['id'];  
+		        $this['kilos']=$kilosNacional;
+		        $this['tipo']='E';
+		        $this['apartado']='---A mercado interior';
+		        $this->saveAndUnload();
+		        //Salidas exportación
+		        $this['ejercicio']=$ejercicio;  
+		        $this['mes']=$mes;  
+		        $this['variedades_id']=$variedad['id'];  
+		        $this['destinos_id']=$destino['id'];  
+		        $this['kilos']=$kilosExport;
+		        $this['tipo']='E';
+		        $this['apartado']='---A exportación';
+		        $this->saveAndUnload();
+				
+				//Existenvcias finales
+		        $this['ejercicio']=$ejercicio;  
+		        $this['mes']=$mes;  
+		        $this['variedades_id']=$variedad['id'];  
+		        $this['destinos_id']=$destino['id'];  
+		        $this['kilos']=$existencias;
+		        $this['tipo']='E';
+		        $this['apartado']='Existencias finales';
+		        $this->saveAndUnload();	
+		        //Guardamos existencias
+		        $exist->setTotal($ejercicio,$mes,'E',$variedad['id'],$destino['id'], $existencias);			             
 	        }
 	        
         }

@@ -1,10 +1,11 @@
 <?php
 class MyUtils extends AbstractObject {
 
-	public function getMesPasado() {
-		$mes=date('m');
-        $ejer=date('Y');
-        
+	public function getMesPasado($ejer=null, $mes=null) {
+		if (!$ejer || !$mes) {
+			$mes=date('m');
+	        $ejer=date('Y');
+        }
         if ($mes==1) {
 	        $ejer--;
 	        $mes=12;
