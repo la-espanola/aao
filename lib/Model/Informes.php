@@ -102,10 +102,10 @@ class Model_Informes extends Model_Table {
 		        //Ventas Granel Transformadas
 		        $kilosTrans=$this->movim
 		        	->CalcularTotal('V','S', $ejercicio, $mes, $variedad['id'], $destino['id'],'T');
-		        //Envasadora propia
+		        //Envasadora propia		        
 		        $kilosEnvProp=$this->movim
 		        	->CalcularTotal('E','S', $ejercicio, $mes, $variedad['id'], $destino['id'],'T','P');
-		        //Envasadora propia
+		        //Envasadora otras
 		        $kilosEnvExt=$this->movim
 		        	->CalcularTotal('E','S', $ejercicio, $mes, $variedad['id'], $destino['id'],'T','E');
 		        //Mermas
@@ -149,7 +149,7 @@ class Model_Informes extends Model_Table {
 		        $this['tipo']='T';
 		        $this['apartado']='---T. envas. propia';
 		        $this->saveAndUnload();
-		        //Salidas Envasado propias
+		        //Salidas Envasado otras
 		        $this['ejercicio']=$ejercicio;  
 		        $this['mes']=$mes;  
 		        $this['variedades_id']=$variedad['id'];  
