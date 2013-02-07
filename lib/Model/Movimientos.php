@@ -5,19 +5,31 @@ class Model_Movimientos extends Model_Table {
     
     function init() {
         parent::init();
-        $this->addField('ejercicio');
-        $this->addField('mes');
-        $this->addField('fecha');
-        $this->addField('kilos_originales');
-        $this->addField('factor');
-        $this->addField('kilos_convertidos');
-        $this->addField('codigo_erp')->sortable(true);
-        $this->addField('entrada_salida');
-        $this->hasOne('Operaciones');
-        $this->hasOne('Productos');
-        $this->hasOne('ClientesProveedores');
+        $this->addField('ejercicio')->required(true);
+        $this->addField('mes')->required(true);
+        $this->addField('fecha')->datatype('date')->required(true);
+        $this->addField('kilos_originales')->required(true);
+        $this->addField('factor')->editable(false);
+        $this->addField('kilos_convertidos')->editable(false);
+        $this->addField('codigo_erp')->sortable(true)->defaultValue(-1)->editable(false);
+        $this->addField('entrada_salida')
+        	 ->setValueList(array('E'=>'Entrada','S'=>'Salida'))
+        	 ->required(true)
+        	 //->display('radio')
+        	 ->defaultValue('E')
+        	 ->emptyText(null);
+        $this->hasOne('Operaciones')->required(true);
+        $this->hasOne('Productos')->required(true);
+        $this->hasOne('ClientesProveedores')->required(true);
+        
+        $this->addHook('beforeSave',function($m) {
+	        $fecha=strtotime($this['fecha']);
+        	if ($this['mes']!=date('n',$fecha) 
+        		|| $this['ejercicio']!=date('Y',$fecha))
+    	throw $m->exception('¡La fecha que has elegido no pertenece al mes y año en el que estamos trabajando!','ValidityCheck')->setField('fecha');
+    	});
     }
-    
+  
     /**
     Devuelve el total de kilos_convertidos para los parámetros pasados. 
     **/
