@@ -35,12 +35,12 @@ class Model_Movimientos extends Model_Table {
     	$this->addCondition('productos_id','in',$expr);
     	
     	if (!empty($tipo_envasadora)) {
-    		$expr=$this->api->db->dsql()->table('clientescroveedores')->field('clientesproveedores.id')->where('envasadora',$tipo_envasadora);
+    		$expr=$this->api->db->dsql()->table('clientesproveedores')->field('clientesproveedores.id')->where('envasadora',$tipo_envasadora);
     		$this->addCondition('clientesproveedores_id','in',$expr);
 	    	
     	}
     	if (!empty($exportacion)) {
-    		$expr=$this->api->db->dsql()->table('clientescroveedores')->field('clientesproveedores.id')->where('exportacion',$exportacion);
+    		$expr=$this->api->db->dsql()->table('clientesproveedores')->field('clientesproveedores.id')->where('exportacion',$exportacion);
     		$this->addCondition('clientesproveedores_id','in',$expr);
 	    	
     	}
