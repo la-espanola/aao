@@ -12,7 +12,7 @@ class page_informes extends Page {
         	$ejercicio=$_GET['ejercicio'];	
         	$informe=$_GET['informe'];
         } else { 
-        	$mesanterior=$this->add('myUtils')->getMesPasado();
+        	$mesanterior=$this->add('MyUtils')->getMesPasado();
 	        $mes=$mesanterior['mes'];
 	        $ejercicio=$mesanterior['ejercicio'];
 	        $informe='T';
