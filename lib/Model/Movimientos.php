@@ -28,7 +28,7 @@ class Model_Movimientos extends Model_Table {
     	$this->addCondition('mes','=',$mes);
     	$this->addCondition('entrada_salida','=',$entrada_salida);
     	
-    	$expr=$this->api->db->dsql()->table('Productos')->field('productos.id')
+    	$expr=$this->api->db->dsql()->table('productos')->field('productos.id')
     		->where('variedades_id',$variedad)
     		->where('destinos_id',$destino)
     		->where('estados_id',$estado);
