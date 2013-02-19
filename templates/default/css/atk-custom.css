@@ -7,28 +7,52 @@
 	Default Layout
 -------------------------------------------------------------------- */
 #header:after {content:".";display:block;height:0;clear:both;visibility:hidden;font-size:0;}
-#header {padding:2em 0;margin-bottom:1em;.zoom:1;.display:block;}
+#header {padding:0;margin-bottom:1em;.zoom:1;.display:block;}
 #header-right {float:right;}
 #header-right .atk-menu {float:right;}
 #header-right #atk-version {clear: both;float:right;margin-top:1em;}
 #navigation ul {overflow:hidden;}
 #navigation ul li {float:left;padding: 0.5em 1em;}
 #footer {text-align:center;}
-
+.logo img {
+	float: left;
+}
+a {
+	text-decoration: none;
+	color: black;
+}
 
 /* --------------------------------------------------------------------
 	Default Layout
 -------------------------------------------------------------------- */
-#atk-logo {
-	border:none;
-	font-size:30px;
-	line-height:0;
-	width:163px;
-	height: 45px;
+#atk-logo {border:none;font-size:0;line-height:0;width:163px;height:41px;overflow:hidden;}
+.atk-wrapper {
+	max-width: 980px;
+	min-width: 320px;
 }
-#atk-logo a {
-	color: black;
-	text-decoration: none;
+.ui-state-default {
+    background-color: #111213;
+    background-image: -moz-linear-gradient(center top, #929292 0%, #000000 100%);
+    background-image: -webkit-linear-gradient(top, #929292, #000000);
+    background-repeat: repeat-x;
+}
+.ui-state-default, .ui-state-default a, .ui-state-default a:link, .ui-state-default a:visited  {
+    color: white;
+    text-shadow:1px 1px 0px black;
+}
+
+.ui-state-active a, .ui-state-active a:link, .ui-state-active a:visited {
+    color: yellow;
+    text-decoration: none;
+}
+
+.ui-state-active, .activo, .ui-widget-content .ui-state-active, .ui-widget-header .ui-state-active {
+    background-color: black;
+    background-image: none;
+}
+
+.ui-state-active, .activo, .ui-widget-content .ui-state-active, .ui-widget-header .ui-state-active {
+    color: white;
 }
 
 #aao_informes td {
