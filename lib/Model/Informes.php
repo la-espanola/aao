@@ -310,4 +310,4 @@ class Model_Informes extends Model_Table {
 
         return true;    
     }
-      
+}
