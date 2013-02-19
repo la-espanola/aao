@@ -8,7 +8,7 @@ class page_movimientos extends Page {
     
         if (!$paso) $paso=1;
         
-        $mesanterior=$this->add('myUtils')->getMesPasado();
+        $mesanterior=$this->add('MyUtils')->getMesPasado();
         $mes=$mesanterior['mes'];
         $ejer=$mesanterior['ejercicio'];
         $formDatos=$this->add('Form');
