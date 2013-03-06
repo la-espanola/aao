@@ -11,24 +11,17 @@ class page_movimientos extends Page {
         $this->add('H1')->set('Movimientos');
     
         if (!$paso) $paso=1;
-<<<<<<< HEAD
-        
-        $mesanterior=$this->add('MyUtils')->getMesPasado();
-        $mes=$mesanterior['mes'];
-        $ejer=$mesanterior['ejercicio'];
-=======
         if ($_GET['mes']) {
 	        $mes=$_GET['mes'];
 	        $ejer=$_GET['ejercicio'];
 	        $operaciones_id=$_GET['operaciones_id'];
         }
         else {
-	        $mesanterior=$this->add('myUtils')->getMesPasado();
+	        $mesanterior=$this->add('MyUtils')->getMesPasado();
 	        $mes=$mesanterior['mes'];
 	        $ejer=$mesanterior['ejercicio'];
 	        $operaciones_id='C';
         }
->>>>>>> Corregida edición de movimientos
         $formDatos=$this->add('Form');
         $formDatos->add('H2')->set('Importar movimientos');
         $comboejer=$formDatos->addField('dropdown','ejercicio')

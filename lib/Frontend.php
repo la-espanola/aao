@@ -34,8 +34,13 @@ class Frontend extends ApiFrontend {
         $this->js()
             ->_load('atk4_univ')
             ->_load('ui.atk4_notify');
+            
+        $auth=$this->add('BasicAuth');
+        $auth->usePasswordEncryption('sha1');
+        $auth->setModel('Usuarios');
+        $auth->check();
         
-        $this->add('Menu',null,'Menu')
+        $menu=$this->add('Menu',null,'Menu')
             ->addMenuItem('index','Inicio')
             ->addMenuItem('variedades','Variedades')
             ->addMenuItem('estados','Estados')
@@ -48,7 +53,10 @@ class Frontend extends ApiFrontend {
             ->addMenuItem('existencias','Existencias')
             ->addMenuItem('ajustes','Ajustes')
             ->addMenuItem('informes','Informes');
-            
+       if ($auth->model['admin']=='S') $menu->addMenuItem('usuarios','Usuarios');
+       $menu->addMenuItem('logout','Salir');
+       
+       
             
     }
 }
