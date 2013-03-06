@@ -1,5 +1,4 @@
 <?php
-require_once('RestClient.php');
 class Model_Productos extends Model_Table {
     public $table='productos';
     

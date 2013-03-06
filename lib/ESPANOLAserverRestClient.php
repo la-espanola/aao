@@ -9,7 +9,7 @@ class ESPANOLAserverRestClient{
      *
      * @var string
      */
-    public static $_WsdlUri='http://192.168.44.13:1111/servicios/server.php?WSDL';
+    public static $_WsdlUri='http://80.38.86.3:1111/servicios/server.php?WSDL';
     /**
      * The PHP SoapClient object
      *
@@ -21,7 +21,7 @@ class ESPANOLAserverRestClient{
      *
      * @var string
      */
-    public static $_EndPoint='http://192.168.44.13:1111/servicios/server.php';
+    public static $_EndPoint='http://80.38.86.3:1111/servicios/server.php';
 
     /**
      * Send a SOAP request to the server
