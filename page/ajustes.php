@@ -5,7 +5,7 @@ class page_ajustes extends Page {
         parent::init();
         
         $this->add('H1')->set('Ajustes');
-        $mesanterior=$this->add('myUtils')->getMesPasado();
+        $mesanterior=$this->add('MyUtils')->getMesPasado();
 	    $mes=$mesanterior['mes'];
 	    $ejercicio=$mesanterior['ejercicio'];
 	    
