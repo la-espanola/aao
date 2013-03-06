@@ -22,10 +22,10 @@ class Model_Movimientos extends Model_Table {
         $this->hasOne('ClientesProveedores')->required(true);
         
         $this->addHook('beforeSave',function($m) {
-	        $fecha=strtotime($this['fecha']);
-        	if ($this['mes']!=date('n',$fecha) 
-        		|| $this['ejercicio']!=date('Y',$fecha))
-    	throw $m->exception('¡La fecha que has elegido no pertenece al mes y año en el que estamos trabajando!','ValidityCheck')->setField('fecha');
+	        $fecha=strtotime($m['fecha']);
+        	if ($m['mes']!=date('n',$fecha) 
+        		|| $m['ejercicio']!=date('Y',$fecha))
+    	throw $m->exception('¡La fecha que has elegido no pertenece al mes y año en el que estamos trabajando! ('.strtotime($m['fecha']).')('.$m['mes'].'-'.$m['ejercicio'].')','ValidityCheck')->setField('fecha');
     	});
     }
   
@@ -93,7 +93,7 @@ class Model_Movimientos extends Model_Table {
         foreach ($result as $compra) {
             $this['ejercicio'] = $ejercicio;
             $this['mes'] = $mes;
-            $this['fecha'] = $compra->fecha;
+            $this['fecha'] = $compra->fecha->date;
             $this['kilos_originales'] = $compra->kilos;
             $this['entrada_salida'] = $compra->entrada_salida;
             $this['factor'] = 0;
