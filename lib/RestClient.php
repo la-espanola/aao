@@ -36,7 +36,12 @@ class ESPANOLAserverRestClient{
         $len=sizeof($keys);
         while(++$i<$len)
             $method=str_replace(" ".$keys[$i]."/",urlencode($param[$keys[$i]])."/",$method);
-        return file_get_contents(self::$_EndPoint.$method);
+        $context = stream_context_create(array(
+        	'http' => array(
+        	'header'  => "Authorization: Basic " . base64_encode("test:test")
+        	)
+        ));
+        return file_get_contents(self::$_EndPoint.$method, false, $context);
     }
 
     /**
